@@ -23,17 +23,28 @@ This repository contains a Coolify-optimized version of Sentry Self-Hosted that 
    - Set the Git repository URL to this repository
    - Set the branch (usually `main` or `master`)
 
-3. **Configure Environment Variables**
+3. **Configure Domain (Important)**
+   - **First, set up DNS records**: You must configure DNS A records before deployment
+     - Example: `sentry.yourdomain.com` → `your-server-ip-address`
+     - Or use wildcard: `*.yourdomain.com` → `your-server-ip-address`
+   - **Configure domain in Coolify**:
+     - Go to Configuration tab → Services section
+     - Select "web" service (main service)
+     - Enter domain in Domains field: `https://sentry.yourdomain.com`
+     - Multiple domains supported: `https://sentry.yourdomain.com,https://sentry.example.com`
+
+4. **Configure Environment Variables**
    - In Coolify, go to your application's Environment tab
    - Copy the contents of `.env.coolify` and paste them as environment variables
-   - Customize the values as needed (especially `SENTRY_MAIL_HOST`)
+   - Set `SENTRY_MAIL_HOST` to match your domain
+   - Customize other values as needed
 
-4. **Deploy**
+5. **Deploy**
    - Click "Deploy" in Coolify
    - Wait for the deployment to complete (this may take 10-15 minutes on first run)
 
-5. **Access Your Sentry Instance**
-   - Use the URL provided by Coolify
+6. **Access Your Sentry Instance**
+   - Access via your configured domain (e.g., `https://sentry.yourdomain.com`)
    - Default credentials:
      - Email: `admin@localhost`
      - Password: `admin`

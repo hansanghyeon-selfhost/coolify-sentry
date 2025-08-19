@@ -23,17 +23,28 @@
    - Git 저장소 URL을 이 저장소로 설정
    - 브랜치 설정 (보통 `main` 또는 `master`)
 
-3. **환경 변수 구성**
+3. **도메인 설정 (중요)**
+   - **먼저 DNS 레코드 설정**: 배포 전에 DNS A 레코드를 설정해야 합니다
+     - 예: `sentry.yourdomain.com` → `서버 IP 주소`
+     - 또는 와일드카드: `*.yourdomain.com` → `서버 IP 주소`
+   - **Coolify에서 도메인 구성**:
+     - Configuration 탭 → Services 섹션
+     - "web" 서비스 선택 (메인 서비스)
+     - Domains 필드에 도메인 입력: `https://sentry.yourdomain.com`
+     - 여러 도메인 가능: `https://sentry.yourdomain.com,https://sentry.example.com`
+
+4. **환경 변수 구성**
    - Coolify에서 애플리케이션의 Environment 탭으로 이동
    - `.env.coolify`의 내용을 복사하여 환경 변수로 붙여넣기
-   - 필요에 따라 값 커스터마이징 (특히 `SENTRY_MAIL_HOST`)
+   - 도메인과 일치하도록 `SENTRY_MAIL_HOST` 설정
+   - 필요에 따라 다른 값들도 커스터마이징
 
-4. **배포**
+5. **배포**
    - Coolify에서 "Deploy" 클릭
    - 배포 완료까지 대기 (첫 실행 시 10-15분 소요될 수 있음)
 
-5. **Sentry 인스턴스 접속**
-   - Coolify에서 제공하는 URL 사용
+6. **Sentry 인스턴스 접속**
+   - 설정한 도메인으로 접속 (예: `https://sentry.yourdomain.com`)
    - 기본 자격증명:
      - 이메일: `admin@localhost`
      - 비밀번호: `admin`

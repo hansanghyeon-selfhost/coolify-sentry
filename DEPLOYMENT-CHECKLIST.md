@@ -25,23 +25,36 @@ Use this checklist to ensure a successful deployment to Coolify.
 
 ## Deployment Steps
 
-### 1. Coolify Application Setup
+### 1. DNS and Domain Setup
+- [ ] Set up DNS A records before deployment
+  - [ ] Example: `sentry.yourdomain.com` → `your-server-ip`
+  - [ ] Or wildcard: `*.yourdomain.com` → `your-server-ip`
+- [ ] Verify DNS propagation with `nslookup` or `dig`
+
+### 2. Coolify Application Setup
 - [ ] Create new "Docker Compose" application in Coolify
 - [ ] Set Git repository URL
 - [ ] Set correct branch (usually `main` or `master`)
 - [ ] Configure base directory if needed (leave empty for root)
 
-### 2. Environment Configuration
+### 3. Domain Configuration in Coolify
+- [ ] Go to Configuration tab → Services section
+- [ ] Select "web" service (main service with coolify.main=true)
+- [ ] Enter domain in Domains field: `https://sentry.yourdomain.com`
+- [ ] Save domain configuration
+
+### 4. Environment Configuration
 - [ ] Copy environment variables from `.env.coolify`
+- [ ] Set `SENTRY_MAIL_HOST` to match your domain
 - [ ] Customize values as needed for your environment
 - [ ] Set any additional environment variables required
 
-### 3. Resource Allocation
+### 5. Resource Allocation
 - [ ] Ensure server has minimum 4GB RAM
 - [ ] Ensure sufficient storage (minimum 20GB recommended)
 - [ ] Configure resource limits in Coolify if needed
 
-### 4. Deployment
+### 6. Deployment
 - [ ] Run validation script: `./scripts/validate-deployment.sh`
 - [ ] Start deployment in Coolify
 - [ ] Monitor deployment logs for any errors
