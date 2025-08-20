@@ -8,8 +8,8 @@ x-restart-policy: &restart_policy
 x-healthcheck-defaults: &healthcheck_defaults
   interval: 30s
   timeout: 90s
-  retries: 10
-  start_period: 10s
+  retries: 15
+  start_period: 60s
 
 x-file-healthcheck: &file_healthcheck_defaults
   test: ["CMD-SHELL", "rm /tmp/health.txt"]
@@ -185,6 +185,19 @@ services:
       kafka:
         condition: service_healthy
     restart: "no"
+    # Coolify optimizations
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/init-complete || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
 
   web:
     <<: *sentry_defaults

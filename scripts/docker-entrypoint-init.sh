@@ -6,6 +6,29 @@ set -euo pipefail
 
 echo "🚀 Initializing Sentry Self-Hosted for Coolify deployment..."
 
+# Coolify-specific error handling and logging
+exec > >(tee -a /tmp/init.log)
+exec 2>&1
+
+# Create completion marker for healthcheck
+cleanup() {
+    local exit_code=$?
+    if [ $exit_code -eq 0 ]; then
+        echo "✅ Init completed successfully"
+        touch /tmp/init-complete
+    else
+        echo "❌ Init failed with exit code: $exit_code"
+        rm -f /tmp/init-complete
+    fi
+    exit $exit_code
+}
+trap cleanup EXIT
+
+# Extended timeouts for Coolify environment
+export POSTGRES_WAIT_TIMEOUT=120
+export REDIS_WAIT_TIMEOUT=60
+export KAFKA_WAIT_TIMEOUT=90
+
 # Environment variables with defaults
 SENTRY_CONF=${SENTRY_CONF:-/etc/sentry}
 SENTRY_CONFIG_YML="$SENTRY_CONF/config.yml"
@@ -44,27 +67,48 @@ fi
 
 echo "⏳ Waiting for dependencies to be ready..."
 
-# Wait for postgres
+# Wait for postgres with timeout
 echo "Waiting for PostgreSQL..."
+postgres_timeout=${POSTGRES_WAIT_TIMEOUT:-120}
+postgres_count=0
 while ! pg_isready -h postgres -p 5432 -U postgres >/dev/null 2>&1; do
-    echo "PostgreSQL is unavailable - sleeping"
+    echo "PostgreSQL is unavailable - sleeping (${postgres_count}/${postgres_timeout}s)"
     sleep 2
+    postgres_count=$((postgres_count + 2))
+    if [ $postgres_count -ge $postgres_timeout ]; then
+        echo "❌ PostgreSQL timeout after ${postgres_timeout}s"
+        exit 1
+    fi
 done
 echo "PostgreSQL is ready!"
 
-# Wait for redis
+# Wait for redis with timeout
 echo "Waiting for Redis..."
+redis_timeout=${REDIS_WAIT_TIMEOUT:-60}
+redis_count=0
 while ! redis-cli -h redis ping >/dev/null 2>&1; do
-    echo "Redis is unavailable - sleeping"
+    echo "Redis is unavailable - sleeping (${redis_count}/${redis_timeout}s)"
     sleep 2
+    redis_count=$((redis_count + 2))
+    if [ $redis_count -ge $redis_timeout ]; then
+        echo "❌ Redis timeout after ${redis_timeout}s"
+        exit 1
+    fi
 done
 echo "Redis is ready!"
 
-# Wait for kafka
+# Wait for kafka with timeout
 echo "Waiting for Kafka..."
+kafka_timeout=${KAFKA_WAIT_TIMEOUT:-90}
+kafka_count=0
 while ! nc -z kafka 9092 >/dev/null 2>&1; do
-    echo "Kafka is unavailable - sleeping"
+    echo "Kafka is unavailable - sleeping (${kafka_count}/${kafka_timeout}s)"
     sleep 2
+    kafka_count=$((kafka_count + 2))
+    if [ $kafka_count -ge $kafka_timeout ]; then
+        echo "❌ Kafka timeout after ${kafka_timeout}s"
+        exit 1
+    fi
 done
 echo "Kafka is ready!"
 
