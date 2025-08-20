@@ -170,41 +170,10 @@ services:
         hard: 262144
 
   # Sentry Core Services
-  init:
-    <<: *sentry_defaults
-    command: ["bash", "/docker-entrypoint-init.sh"]
-    volumes:
-      - "sentry-data:/data"
-      - "./config/sentry:/etc/sentry"
-      - "./scripts/docker-entrypoint-init.sh:/docker-entrypoint-init.sh:ro"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-    restart: "no"
-    # Coolify optimizations
-    healthcheck:
-      test: ["CMD-SHELL", "test -f /tmp/init-complete || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 300s
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-        reservations:
-          memory: 512M
 
   web:
     <<: *sentry_defaults
-    command: ["run", "web"]
-    depends_on:
-      init:
-        condition: service_completed_successfully
+    command: ["bash", "-c", "sentry upgrade --noinput; sentry exec -c 'from sentry.models import User; User.objects.filter(is_superuser=True).exists() or User.objects.create_superuser(email=\"admin@localhost\", password=\"admin\", username=\"admin\")'; exec sentry run web"]
     healthcheck:
       <<: *healthcheck_defaults
       test: ["CMD-SHELL", "curl -f http://localhost:9000/_health/ || exit 1"]
@@ -215,26 +184,20 @@ services:
 
   cron:
     <<: *sentry_defaults
-    command: ["run", "cron"]
-    depends_on:
-      init:
-        condition: service_completed_successfully
+    command: ["bash", "-c", "sleep 30; exec sentry run cron"]
     healthcheck:
       <<: *file_healthcheck_defaults
 
   worker:
     <<: *sentry_defaults
-    command: ["run", "worker"]
-    depends_on:
-      init:
-        condition: service_completed_successfully
+    command: ["bash", "-c", "sleep 30; exec sentry run worker"]
     healthcheck:
       <<: *file_healthcheck_defaults
 
   # Snuba Services
   snuba-api:
     <<: *snuba_defaults
-    command: ["api"]
+    command: ["bash", "-c", "snuba bootstrap --no-migrate-kafka || true; exec snuba api"]
     healthcheck:
       <<: *healthcheck_defaults
       test: ["CMD-SHELL", "curl -f http://localhost:1218/health || exit 1"]
