@@ -173,24 +173,26 @@ services:
 
   web:
     <<: *sentry_defaults
-    command: ["bash", "-c", "
-      # Ensure config files exist
-      if [ ! -f /etc/sentry/config.yml ] && [ -f /etc/sentry/config.example.yml ]; then
-        cp /etc/sentry/config.example.yml /etc/sentry/config.yml;
-      fi;
-      if [ ! -f /etc/sentry/sentry.conf.py ] && [ -f /etc/sentry/sentry.conf.example.py ]; then
-        cp /etc/sentry/sentry.conf.example.py /etc/sentry/sentry.conf.py;
-      fi;
-      # Generate secret key if needed
-      if grep -q 'system.secret-key.*!!changeme!!' /etc/sentry/config.yml 2>/dev/null; then
-        NEW_SECRET_KEY=\$(head /dev/urandom | tr -dc 'a-z0-9@#%^&*(-_=+)' | head -c 50);
-        sed -i \"s/system.secret-key:.*/system.secret-key: '\$NEW_SECRET_KEY'/\" /etc/sentry/config.yml;
-      fi;
-      # Initialize and start
-      sentry upgrade --noinput;
-      sentry exec -c 'from sentry.models import User; User.objects.filter(is_superuser=True).exists() or User.objects.create_superuser(email=\"admin@localhost\", password=\"admin\", username=\"admin\")';
-      exec sentry run web
-    "]
+    command:
+      - "bash"
+      - "-c"
+      - |
+        # Ensure config files exist
+        if [ ! -f /etc/sentry/config.yml ] && [ -f /etc/sentry/config.example.yml ]; then
+          cp /etc/sentry/config.example.yml /etc/sentry/config.yml
+        fi
+        if [ ! -f /etc/sentry/sentry.conf.py ] && [ -f /etc/sentry/sentry.conf.example.py ]; then
+          cp /etc/sentry/sentry.conf.example.py /etc/sentry/sentry.conf.py
+        fi
+        # Generate secret key if needed
+        if grep -q 'system.secret-key.*!!changeme!!' /etc/sentry/config.yml 2>/dev/null; then
+          NEW_SECRET_KEY=$$(head /dev/urandom | tr -dc 'a-z0-9@#%^&*(-_=+)' | head -c 50)
+          sed -i "s/system.secret-key:.*/system.secret-key: '$NEW_SECRET_KEY'/" /etc/sentry/config.yml
+        fi
+        # Initialize and start
+        sentry upgrade --noinput
+        sentry exec -c 'from sentry.models import User; User.objects.filter(is_superuser=True).exists() or User.objects.create_superuser(email="admin@localhost", password="admin", username="admin")'
+        exec sentry run web
     healthcheck:
       <<: *healthcheck_defaults
       test: ["CMD-SHELL", "curl -f http://localhost:9000/_health/ || exit 1"]
@@ -201,20 +203,29 @@ services:
 
   cron:
     <<: *sentry_defaults
-    command: ["bash", "-c", "sleep 30; exec sentry run cron"]
+    command:
+      - "bash"
+      - "-c"
+      - "sleep 30; exec sentry run cron"
     healthcheck:
       <<: *file_healthcheck_defaults
 
   worker:
     <<: *sentry_defaults
-    command: ["bash", "-c", "sleep 30; exec sentry run worker"]
+    command:
+      - "bash"
+      - "-c"
+      - "sleep 30; exec sentry run worker"
     healthcheck:
       <<: *file_healthcheck_defaults
 
   # Snuba Services
   snuba-api:
     <<: *snuba_defaults
-    command: ["bash", "-c", "snuba bootstrap --no-migrate-kafka || true; exec snuba api"]
+    command:
+      - "bash"
+      - "-c"
+      - "snuba bootstrap --no-migrate-kafka || true; exec snuba api"
     healthcheck:
       <<: *healthcheck_defaults
       test: ["CMD-SHELL", "curl -f http://localhost:1218/health || exit 1"]
