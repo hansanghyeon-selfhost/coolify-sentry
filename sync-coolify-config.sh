@@ -2,7 +2,7 @@
 
 # Coolify 애플리케이션 설정 파일 Git 동기화 스크립트
 # 사용법: ./sync-coolify-config.sh <application-id>
-# 또는: curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | bash -s -- <application-id>
+# 또는: curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/main/sync-coolify-config.sh | bash -s -- <application-id>
 
 set -euo pipefail
 
@@ -10,9 +10,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="/var/log/coolify-sync.log"
 COOLIFY_BASE_PATH="/data/coolify/applications"
-GIT_REPO_URL="${GIT_REPO_URL:-https://github.com/hansanghyeon/selfhost.git}"
+GIT_REPO_URL="${GIT_REPO_URL:-https://github.com/hansanghyeon-selfhost/coolify-sentry.git}"
 GIT_BRANCH="${GIT_BRANCH:-main}"
-CONFIG_SOURCE_PATH="sentry/self-hosted"
+CONFIG_SOURCE_PATH="."
 
 # 로깅 함수
 log() {
@@ -40,10 +40,10 @@ usage() {
   $0 l80ook0sgk8o4okg880gw00s
   
 curl로 실행:
-  curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | sudo bash -s -- l80ook0sgk8o4okg880gw00s
+  curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/main/sync-coolify-config.sh | sudo bash -s -- YOUR_APPLICATION_ID
 
 환경변수:
-  GIT_REPO_URL: Git 저장소 URL (기본값: https://github.com/hansanghyeon/selfhost.git)
+  GIT_REPO_URL: Git 저장소 URL (기본값: https://github.com/hansanghyeon-selfhost/coolify-sentry.git)
   GIT_BRANCH: Git 브랜치 (기본값: main)
   RESTART_SERVICES: 동기화 후 서비스 재시작 여부 (기본값: false)
 EOF

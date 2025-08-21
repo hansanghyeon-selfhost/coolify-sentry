@@ -201,20 +201,20 @@ This repository provides a script to sync configuration files from the Git repos
 
 ```bash
 # Replace APPLICATION_ID with your actual Coolify application ID
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | bash -s -- YOUR_APPLICATION_ID
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/main/sync-coolify-config.sh | bash -s -- YOUR_APPLICATION_ID
 ```
 
 Example:
 ```bash
 # For application ID: l80ook0sgk8o4okg880gw00s
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | bash -s -- l80ook0sgk8o4okg880gw00s
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/main/sync-coolify-config.sh | bash -s -- l80ook0sgk8o4okg880gw00s
 ```
 
 #### Method 2: Download and execute
 
 ```bash
 # Download the script
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh -o sync-coolify-config.sh
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/main/sync-coolify-config.sh -o sync-coolify-config.sh
 
 # Make it executable
 chmod +x sync-coolify-config.sh
@@ -228,7 +228,7 @@ chmod +x sync-coolify-config.sh
 You can customize the script behavior with environment variables:
 
 ```bash
-# Custom Git repository (default: https://github.com/hansanghyeon/selfhost.git)
+# Custom Git repository (default: https://github.com/hansanghyeon-selfhost/coolify-sentry.git)
 export GIT_REPO_URL="https://github.com/your-username/your-repo.git"
 
 # Custom Git branch (default: main)
@@ -238,7 +238,7 @@ export GIT_BRANCH="develop"
 export RESTART_SERVICES="true"
 
 # Run the script
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | bash -s -- YOUR_APPLICATION_ID
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/main/sync-coolify-config.sh | bash -s -- YOUR_APPLICATION_ID
 ```
 
 ### What the Script Does
