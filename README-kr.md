@@ -201,20 +201,20 @@ Sentry 업데이트 방법:
 
 ```bash
 # APPLICATION_ID를 실제 Coolify 애플리케이션 ID로 교체하세요
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | sudo bash -s -- YOUR_APPLICATION_ID
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/refs/heads/main/sync-coolify-config.sh | sudo bash -s -- YOUR_APPLICATION_ID
 ```
 
 예시:
 ```bash
 # 애플리케이션 ID: l80ook0sgk8o4okg880gw00s인 경우
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | sudo bash -s -- l80ook0sgk8o4okg880gw00s
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/refs/heads/main/sync-coolify-config.sh | sudo bash -s -- l80ook0sgk8o4okg880gw00s
 ```
 
 #### 방법 2: 다운로드 후 실행
 
 ```bash
 # 스크립트 다운로드
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh -o sync-coolify-config.sh
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/refs/heads/main/sync-coolify-config.sh -o sync-coolify-config.sh
 
 # 실행 권한 부여
 chmod +x sync-coolify-config.sh
@@ -238,7 +238,7 @@ export GIT_BRANCH="develop"
 export RESTART_SERVICES="true"
 
 # 스크립트 실행
-curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | sudo bash -s -- YOUR_APPLICATION_ID
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon-selfhost/coolify-sentry/refs/heads/main/sync-coolify-config.sh | sudo bash -s -- YOUR_APPLICATION_ID
 ```
 
 ### 스크립트가 수행하는 작업
