@@ -191,6 +191,110 @@ Sentry 업데이트 방법:
 3. Coolify에서 재배포
 4. 배포 로그에서 문제 모니터링
 
+## 🔄 설정 동기화 스크립트
+
+이 저장소는 Git 저장소의 설정 파일을 Coolify 배포 디렉토리로 동기화하는 스크립트를 제공합니다. 저장소의 설정 파일을 변경하고 실행 중인 배포에 적용하고 싶을 때 유용합니다.
+
+### 사용법
+
+#### 방법 1: curl로 직접 실행 (권장)
+
+```bash
+# APPLICATION_ID를 실제 Coolify 애플리케이션 ID로 교체하세요
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | sudo bash -s -- YOUR_APPLICATION_ID
+```
+
+예시:
+```bash
+# 애플리케이션 ID: l80ook0sgk8o4okg880gw00s인 경우
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | sudo bash -s -- l80ook0sgk8o4okg880gw00s
+```
+
+#### 방법 2: 다운로드 후 실행
+
+```bash
+# 스크립트 다운로드
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh -o sync-coolify-config.sh
+
+# 실행 권한 부여
+chmod +x sync-coolify-config.sh
+
+# 애플리케이션 ID와 함께 실행
+./sync-coolify-config.sh YOUR_APPLICATION_ID
+```
+
+### 환경 변수
+
+환경 변수로 스크립트 동작을 커스터마이징할 수 있습니다:
+
+```bash
+# 커스텀 Git 저장소 (기본값: https://github.com/hansanghyeon/selfhost.git)
+export GIT_REPO_URL="https://github.com/your-username/your-repo.git"
+
+# 커스텀 Git 브랜치 (기본값: main)
+export GIT_BRANCH="develop"
+
+# 동기화 후 자동 Docker Compose 서비스 재시작 활성화
+export RESTART_SERVICES="true"
+
+# 스크립트 실행
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | sudo bash -s -- YOUR_APPLICATION_ID
+```
+
+### 스크립트가 수행하는 작업
+
+동기화 스크립트는 다음을 수행합니다:
+
+1. **검증** - Coolify 애플리케이션 디렉토리가 존재하는지 확인
+2. **클론** - Git 저장소에서 최신 설정을 클론
+3. **백업** - 기존 설정을 백업 (타임스탬프 포함)
+4. **동기화** - 모든 설정 파일 및 디렉토리 동기화:
+   - `sentry/` - 메인 Sentry 설정
+   - `geoip/` - GeoIP 데이터베이스 파일
+   - `certificates/` - 커스텀 SSL 인증서
+   - `symbolicator/` - Symbolicator 설정
+   - `relay/` - Relay 설정
+   - `redis.conf` - Redis 설정
+   - `clickhouse/` - ClickHouse 설정
+5. **권한 설정** - 적절한 파일 권한 설정
+6. **로깅** - 모든 작업을 `/var/log/coolify-sync.log`에 기록
+7. **서비스 재시작** - 선택적으로 Docker Compose 서비스 재시작
+
+### 애플리케이션 ID 찾기
+
+Coolify 애플리케이션 ID는 여러 방법으로 찾을 수 있습니다:
+
+1. **Coolify URL에서**: 애플리케이션을 볼 때 URL에 ID가 포함됩니다:
+   ```
+   https://your-coolify.domain/applications/YOUR_APPLICATION_ID
+   ```
+
+2. **Docker 컨테이너 이름에서**: 모든 컨테이너에 애플리케이션 ID가 포함됩니다:
+   ```bash
+   docker ps --format "table {{.Names}}" | grep sentry
+   # 패턴을 찾으세요: service-APPLICATION_ID-timestamp
+   ```
+
+3. **애플리케이션 디렉토리에서**: 기존 디렉토리를 확인하세요:
+   ```bash
+   ls /data/coolify/applications/
+   ```
+
+### 문제 해결
+
+- **권한 거부**: root 권한이나 sudo로 스크립트를 실행해야 합니다
+- **Git 클론 실패**: 인터넷 연결과 Git 저장소 접근을 확인하세요
+- **디렉토리를 찾을 수 없음**: Coolify 애플리케이션 ID가 올바른지 확인하세요
+- **서비스 재시작 실패**: Docker와 docker-compose.coolify.yml 파일이 존재하는지 확인하세요
+
+### 로그
+
+모든 동기화 작업은 `/var/log/coolify-sync.log`에 기록됩니다. 동기화 프로세스에 대한 자세한 정보는 이 파일을 확인하세요:
+
+```bash
+tail -f /var/log/coolify-sync.log
+```
+
 ## 🛡️ 보안 고려사항
 
 1. **기본 자격증명 변경**: 즉시 기본 관리자 자격증명 변경

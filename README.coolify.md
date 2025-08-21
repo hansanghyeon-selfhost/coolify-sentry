@@ -191,6 +191,110 @@ To update Sentry:
 3. Redeploy in Coolify
 4. Monitor deployment logs for any issues
 
+## 🔄 Configuration Sync Script
+
+This repository provides a script to sync configuration files from the Git repository to your Coolify deployment directory. This is useful when you've made changes to the configuration files in the repository and want to apply them to your running deployment.
+
+### Usage
+
+#### Method 1: Direct curl execution (Recommended)
+
+```bash
+# Replace APPLICATION_ID with your actual Coolify application ID
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | bash -s -- YOUR_APPLICATION_ID
+```
+
+Example:
+```bash
+# For application ID: l80ook0sgk8o4okg880gw00s
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | bash -s -- l80ook0sgk8o4okg880gw00s
+```
+
+#### Method 2: Download and execute
+
+```bash
+# Download the script
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh -o sync-coolify-config.sh
+
+# Make it executable
+chmod +x sync-coolify-config.sh
+
+# Run with your application ID
+./sync-coolify-config.sh YOUR_APPLICATION_ID
+```
+
+### Environment Variables
+
+You can customize the script behavior with environment variables:
+
+```bash
+# Custom Git repository (default: https://github.com/hansanghyeon/selfhost.git)
+export GIT_REPO_URL="https://github.com/your-username/your-repo.git"
+
+# Custom Git branch (default: main)
+export GIT_BRANCH="develop"
+
+# Enable automatic Docker Compose service restart after sync
+export RESTART_SERVICES="true"
+
+# Run the script
+curl -fsSL https://raw.githubusercontent.com/hansanghyeon/selfhost/main/sentry/self-hosted/sync-coolify-config.sh | bash -s -- YOUR_APPLICATION_ID
+```
+
+### What the Script Does
+
+The sync script will:
+
+1. **Validate** the Coolify application directory exists
+2. **Clone** the latest configuration from the Git repository
+3. **Backup** existing configurations (with timestamp)
+4. **Sync** all configuration files and directories:
+   - `sentry/` - Main Sentry configuration
+   - `geoip/` - GeoIP database files
+   - `certificates/` - Custom SSL certificates
+   - `symbolicator/` - Symbolicator configuration
+   - `relay/` - Relay configuration
+   - `redis.conf` - Redis configuration
+   - `clickhouse/` - ClickHouse configuration
+5. **Set** proper file permissions
+6. **Log** all operations to `/var/log/coolify-sync.log`
+7. **Optionally restart** Docker Compose services
+
+### Finding Your Application ID
+
+Your Coolify application ID can be found in several ways:
+
+1. **From Coolify URL**: When viewing your application, the URL contains the ID:
+   ```
+   https://your-coolify.domain/applications/YOUR_APPLICATION_ID
+   ```
+
+2. **From Docker container names**: All containers include the application ID:
+   ```bash
+   docker ps --format "table {{.Names}}" | grep sentry
+   # Look for pattern: service-APPLICATION_ID-timestamp
+   ```
+
+3. **From application directory**: Check existing directories:
+   ```bash
+   ls /data/coolify/applications/
+   ```
+
+### Troubleshooting
+
+- **Permission denied**: Make sure you run the script as root or with sudo
+- **Git clone fails**: Check your internet connection and Git repository access
+- **Directory not found**: Verify your Coolify application ID is correct
+- **Service restart fails**: Check Docker and the docker-compose.coolify.yml file exists
+
+### Logs
+
+All sync operations are logged to `/var/log/coolify-sync.log`. Check this file for detailed information about the sync process:
+
+```bash
+tail -f /var/log/coolify-sync.log
+```
+
 ## 🛡️ Security Considerations
 
 1. **Change Default Credentials**: Immediately change the default admin credentials
